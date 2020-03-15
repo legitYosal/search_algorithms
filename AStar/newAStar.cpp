@@ -61,7 +61,18 @@ State Hash ( State node ) {
   nodes[key] = node ;
   return node ;
 }
-
+void print (Map map) {
+  cout << "map :" << endl;
+  for ( int i = 1 ; i < 7 ; i ++ ) {
+    for ( int j = 1 ; j < 7 ; j ++ ){
+      cout << map.cell[i][j] << " " ;
+      if (map.cell[i][j] < 10){
+        cout << ' ';
+      }
+    }
+  cout << endl ;
+  }
+}
 int heuristic(State node){
   // return 0;
   int x, y;
@@ -341,6 +352,7 @@ int main () {
 
   first = Hash ( first ) ;
   //cout << first.id << endl ;
+  print(first.map);
   par[first.id] = "-1" ;
   Gval[first.id] = 0 ;
 
