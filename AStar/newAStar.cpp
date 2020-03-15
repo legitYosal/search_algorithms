@@ -63,7 +63,7 @@ State Hash ( State node ) {
 }
 
 int heuristic(State node){
-  return 0;
+  // return 0;
   int x, y;
   int car;
   vector <int> blocked;
