@@ -63,6 +63,7 @@ State Hash ( State node ) {
 }
 
 int heuristic(State node){
+  return 0;
   int x, y;
   int car;
   vector <int> blocked;
@@ -113,7 +114,7 @@ int heuristic(State node){
 
     }
   }
-  return blocked.size() * 10;
+  return blocked.size() / 2;
 }
 
 bool checkGoal ( State node ) {
@@ -306,8 +307,8 @@ State bfs ( State root ) {
       if ( !mark[children[i].id] ) {
       	mark[children[i].id] = true ;
       	par[children[i].id] = now.Y ;
-      	sts.insert(make_pair(Hval[children[i].id] +  Gval[children[i].id], children[i].id ) );
-      	if ( checkGoal ( children[i] ) )
+        sts.insert(make_pair(Hval[children[i].id] +  Gval[children[i].id], children[i].id ) );
+        if ( checkGoal ( children[i] ) )
       	  return children[i] ;
       }
     }
