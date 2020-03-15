@@ -68,7 +68,7 @@ int heuristic(State node){
   int car;
   vector <int> blocked;
   vector <int> stack;
-  for (int i = 1; i < 7; i ++){
+  for (int i = node.cars[1].y + node.cars[1].len; i < 7; i ++){
     car = node.map.cell[node.cars[1].x][i];
     if ( car != 0 and car != 1){
       // because they all are verticall then just add it to in main path
