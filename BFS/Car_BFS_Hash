@@ -4,19 +4,21 @@
 #include <bits/stdc++.h>
 #include <cstdio>
 #include <chrono>
+#include <stdio.h>
 using namespace std ;
 using namespace std::chrono;
 
 #define X first
 #define Y second
 //#define int long long
-#define TRANSITION_COST 1
+
 typedef long long ll ;
 typedef long double ld ;
 typedef long long int lli ;
 
 
 const int maxn = 1e6 + 10 ;
+
 
 struct Map {
   int cell[7][7];
@@ -30,8 +32,6 @@ struct State {
   string id ;
   Map map;
   Car cars[40];
-  //int Gval;
-  //int Hval;
   //int parent ;
 };
 
@@ -39,9 +39,7 @@ State states[maxn] ;
 int stateSize ;
 int N ;
 vector < State > soloutions ;
-//list < State > sts ;
-map < string , int > Gval ;
-map < string , int > Hval ;
+list < State > sts ;
 map < string , string > par ;
 map < string , State > nodes ;
 map < string , bool > mark ;
@@ -58,62 +56,8 @@ State Hash ( State node ) {
     key += node.cars[i].vh ;
   }
   node.id = key ;
-  nodes[key] = node ;
+  //nodes[key] = node ;
   return node ;
-}
-
-int heuristic(State node){
-  int x, y;
-  int car;
-  vector <int> blocked;
-  vector <int> stack;
-  for (int i = 1; i < 7; i ++){
-    car = node.map.cell[node.cars[1].x][i];
-    if ( car != 0 and car != 1){
-      // because they all are verticall then just add it to in main path
-      if (find(blocked.begin(), blocked.end(), car) == blocked.end()){
-        blocked.push_back(car);
-        stack.push_back(car);
-      }
-      while (!stack.empty()){
-        car = stack.back();
-        stack.pop_back();
-
-        x = node.cars[car].x;
-        y = node.cars[car].y;
-        if (node.cars[car].vh == 'v'){
-          if (x - 1 > 0 and node.map.cell[x-1][y] != 0 and node.map.cell[x-1][y] != 1)
-            if (find(blocked.begin(), blocked.end(), node.map.cell[x-1][y]) == blocked.end()){
-              // it wasnt in blocked list
-              stack.push_back(node.map.cell[x-1][y]);
-              blocked.push_back(node.map.cell[x-1][y]);
-            }
-          if (x + node.cars[car].len < 7 and node.map.cell[x + node.cars[car].len][y] != 0 and node.map.cell[x + node.cars[car].len][y] != 1)
-            if (find(blocked.begin(), blocked.end(), node.map.cell[x + node.cars[car].len][y]) == blocked.end()){
-              // it wasnt in blocked list
-              stack.push_back(node.map.cell[x + node.cars[car].len][y]);
-              blocked.push_back(node.map.cell[x + node.cars[car].len][y]);
-            }
-        }
-        else if (node.cars[car].vh == 'h'){
-          if (y - 1 > 0 and node.map.cell[x][y - 1] != 0 and node.map.cell[x][y - 1] != 1)
-            if (find(blocked.begin(), blocked.end(), node.map.cell[x][y - 1]) == blocked.end()){
-              // it wasnt in blocked list
-              stack.push_back(node.map.cell[x][y -1]);
-              blocked.push_back(node.map.cell[x][y -1]);
-            }
-          if (y + node.cars[car].len < 7 and node.map.cell[x][y + node.cars[car].len] != 0 and node.map.cell[x][y + node.cars[car].len] != 1)
-            if (find(blocked.begin(), blocked.end(), node.map.cell[x][y + node.cars[car].len]) == blocked.end()){
-              // it wasnt in blocked list
-              stack.push_back(node.map.cell[x][y + node.cars[car].len]);
-              blocked.push_back(node.map.cell[x][y + node.cars[car].len]);
-            }
-        }
-      }
-
-    }
-  }
-  return blocked.size() * 10;
 }
 
 bool checkGoal ( State node ) {
@@ -154,8 +98,6 @@ bool checkMove ( Car car , Map map , int p , int arrow ) {
   }
   return true ;
 }
-
-
 vector <State> successor( State node ) {
   vector < State > childsState ;
   Map map = node.map ;
@@ -175,8 +117,6 @@ vector <State> successor( State node ) {
 
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
-	  Hval[newState.id] = heuristic(newState);
-	  Gval[newState.id] = TRANSITION_COST + Gval[node.id] ;
 	  childsState.push_back ( newState ) ;
 
         }else break ;
@@ -193,8 +133,6 @@ vector <State> successor( State node ) {
 	  newState.cars[i].y = newState.cars[i].y + k ;
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
-	  Hval[newState.id] = heuristic(newState);
-	  Gval[newState.id] = TRANSITION_COST + Gval[node.id] ;
 	  childsState.push_back ( newState ) ;
 
         }else break;
@@ -214,8 +152,6 @@ vector <State> successor( State node ) {
 	  newState.cars[i].x = newState.cars[i].x - k ;
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
-	  Hval[newState.id] = heuristic(newState);
-	  Gval[newState.id] = TRANSITION_COST + Gval[node.id] ;
           childsState.push_back ( newState ) ;
 
         }else break ;
@@ -233,8 +169,6 @@ vector <State> successor( State node ) {
 
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
-	  Hval[newState.id] = heuristic(newState);
-	  Gval[newState.id] = TRANSITION_COST + Gval[node.id] ;
 	  childsState.push_back ( newState ) ;
 
 
@@ -284,29 +218,30 @@ void printSoloution () {
 
 }
 
-
-multiset<pair<int , string>>sts;
+void print (Map map) {
+  for ( int i = 1 ; i < 7 ; i ++ ) {
+    for ( int j = 1 ; j < 7 ; j ++ ){
+      cout << map.cell[i][j] << " " ;
+      if (map.cell[i][j] < 10){
+        cout << ' ';
+      }
+    }
+  cout << endl ;
+  }
+}
 
 State bfs ( State root ) {
-  int minVal;
-  int index;
 
-  sts.insert(make_pair(0 , root.id ));
-   //heuristic
-  while ( sts.size () ) {
-
-    pair<int , string> now = *sts.begin() ;
-    sts.erase(sts.begin());
-    minVal = Gval[now.Y] + Hval[now.Y] ;
-    index = 0 ;
+  while ( !sts.empty () ) {
+    State now = sts.front() ;
+    sts.pop_front() ;
     vector < State > children ;
-
-    children = successor ( nodes[now.Y] ) ;
+    children = successor ( now ) ;
     for ( int i = 0 ; i < children.size() ; i ++ ) {
       if ( !mark[children[i].id] ) {
       	mark[children[i].id] = true ;
-      	par[children[i].id] = now.Y ;
-      	sts.insert(make_pair(Hval[children[i].id] +  Gval[children[i].id], children[i].id ) );
+      	par[children[i].id] = now.id ;
+      	sts.push_back ( children[i] ) ;
       	if ( checkGoal ( children[i] ) )
       	  return children[i] ;
       }
@@ -336,20 +271,19 @@ int main () {
 	first.map.cell[x][j] = n ;
     }
   }
-  auto start = high_resolution_clock::now();
+	auto start = high_resolution_clock::now();
 
   first = Hash ( first ) ;
-  //cout << first.id << endl ;
-  par[first.id] = "-1" ;
-  Gval[first.id] = 0 ;
 
-  //states[0] = first ;
+  states[0] = first ;
 
-  //stateSize ++ ;
+  stateSize ++ ;
 
-	// int rt = heuristic(first);
-	// cout << rt << " is the esential moves" << endl;
-  // //sts.insert ( { heuristic(first) , first.id } ) ;
+  sts.push_back ( first ) ;
+  cout << "init state is : " << endl;
+  print(first.map);
+  cout << endl;
+
   goal = bfs ( first ) ;
 
   auto stop = high_resolution_clock::now();
@@ -363,11 +297,11 @@ int main () {
   cout << "depth of soloutions:"
           << soloutions.size() << " layers " << endl;
 
-  cout << "number of nodes: "
-          << nodes.size() << " nodes " << endl;
-
-  cout << "number of visited nodes "
+  cout << "number of all nodes in mark: "
           << mark.size() << " nodes " << endl;
+
+  cout << "number of nodes "
+          << nodes.size() << " nodes " << endl;
 
   cout << " all states are: "
           << sts.size() << "states" << endl;

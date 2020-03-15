@@ -1,4 +1,4 @@
-
+	
 //In the Name of God
 
 #include <bits/stdc++.h>
@@ -37,7 +37,7 @@ State states[maxn] ;
 int stateSize ;
 int N ;
 vector < State > soloutions ;
-list < State > sts ;
+stack < State > sts ;
 map < string , string > par ;
 map < string , State > nodes ;
 map < string , bool > mark ;
@@ -114,11 +114,11 @@ vector <State> successor( State node ) {
 	    newState.map.cell[car.x][loc-k] = i ;
 	  }
 	  newState.cars[i].y = newState.cars[i].y - k ;
-
+	  
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
 	  childsState.push_back ( newState ) ;
-
+	  
         }else break ;
       }
       for (int k = 1 ; k < 5 ; k ++) {
@@ -134,7 +134,7 @@ vector <State> successor( State node ) {
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
 	  childsState.push_back ( newState ) ;
-
+	   
         }else break;
       }
     }
@@ -153,7 +153,7 @@ vector <State> successor( State node ) {
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
           childsState.push_back ( newState ) ;
-
+	  
         }else break ;
       }
       for (int k = 1 ; k < 5 ; k ++) {
@@ -166,12 +166,12 @@ vector <State> successor( State node ) {
 	    newState.map.cell[loc+k][car.y] = i ;
 	  }
 	  newState.cars[i].x = newState.cars[i].x + k ;
-
+	  
 	  newState = Hash ( newState ) ;
 	  nodes[node.id] = node ;
 	  childsState.push_back ( newState ) ;
-
-
+	  
+	  
 	}else break ;
       }
     }
@@ -187,7 +187,7 @@ void generateSolve ( State goal ) {
     soloutions.push_back ( nodes[par[cur.id]] ) ;
     cur = nodes[par[cur.id]] ;
   }
-
+  
   reverse ( soloutions.begin() , soloutions.end() ) ;
 }
 
@@ -218,29 +218,39 @@ void printSoloution () {
 
 }
 
+//DFS
+void dfs () {
 
-State bfs ( State root ) {
-
-  while ( !sts.empty () ) {
-    State now = sts.front() ;
-    sts.pop_front() ;
-    vector < State > children ;
-    children = successor ( now ) ;
-    for ( int i = 0 ; i < children.size() ; i ++ ) {
-      if ( !mark[children[i].id] ) {
-      	mark[children[i].id] = true ;
-      	par[children[i].id] = now.id ;
-      	sts.push_back ( children[i] ) ;
-      	if ( checkGoal ( children[i] ) ){
-        cout << " this node childeren size is: " << children.size() << " and my i is: " << i << endl;
-      	  return children[i] ;}
+  sts.push ( first ) ;
+  while ( !sts.empty() ) {
+    State cur ;
+    cur = sts.top() ;
+    sts.pop () ;
+    if ( !mark[cur.id] ) {
+      mark[cur.id] = true ;
+      if ( checkGoal ( cur ) ) {
+	generateSolve ( cur ) ;
+	printSoloution () ;
+	return ;
       }
     }
-  }
+    
+    vector < State > children ;
+    children = successor ( cur ) ;
+    
+    for ( int i = 0 ; i < children.size() ; i ++ ) {
+      if ( !mark[children[i].id] ) {
+	par[children[i].id] = cur.id ;
+	sts.push ( children[i] ) ;
 
+      }
+    }
+    
+  }
 }
 
-int main () {
+
+int32_t main () {
 
   ios::sync_with_stdio(0);cin.tie(0) ;
   cin >> N ;
@@ -261,36 +271,12 @@ int main () {
 	first.map.cell[x][j] = n ;
     }
   }
-	auto start = high_resolution_clock::now();
-
+  
   first = Hash ( first ) ;
 
-  states[0] = first ;
+  dfs () ;
 
-  stateSize ++ ;
-
-  sts.push_back ( first ) ;
-
-  goal = bfs ( first ) ;
-
-  auto stop = high_resolution_clock::now();
-  auto duration = duration_cast<microseconds>(stop - start);
-  cout << "Time taken by search: "
-          << duration.count() << " microseconds" << endl;
-
-  generateSolve ( goal ) ;
-  printSoloution() ;
-
-  cout << "depth of soloutions:"
-          << soloutions.size() << " layers " << endl;
-
-  cout << "number of all nodes in mark: "
-          << mark.size() << " nodes " << endl;
-
-  cout << "number of nodes "
-          << nodes.size() << " nodes " << endl;
-
-  cout << " all states are: "
-          << sts.size() << "states" << endl;
+ 
   return 0 ;
 }
+
